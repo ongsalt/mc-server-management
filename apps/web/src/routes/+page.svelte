@@ -8,7 +8,7 @@
     export let data: PageData;
 
     let ec2 = data.ec2;
-    let checked = ec2.status === "running";
+    let checked = ec2.status === "running" || ec2.status === "pending";
 
     $: statusText = ec2.status.toUpperCase();
     $: statusChanging =
@@ -31,7 +31,8 @@
             body: checked ? "on" : "off",
         })
             .then((res) => res.text())
-            .then(console.log);
+            .then(console.log)
+            .then(fetchServerStatus);
     }
 
     let id = setInterval(fetchServerStatus, 2000);
@@ -45,6 +46,7 @@
             ReturnType<typeof getStatus>
         >;
         ec2 = updatedResult;
+        checked = ec2.status === "running" || ec2.status === "pending"
     }
 </script>
 
