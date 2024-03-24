@@ -1,27 +1,50 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import Switch from "$lib/components/ui/switch/switch.svelte";
+    import type { getStatus } from "$lib/server/ec2";
+    import { onDestroy } from "svelte";
+    import type { PageData } from "./$types";
 
-    const dateText = new Date().toISOString();
+    export let data: PageData;
 
-    let checked = false;
-    let statusText = "Running";
-    let statusText2 = ""
-    let statusChanging = false;
+    let ec2 = data.ec2;
+    let checked = ec2.status === "running";
+
+    $: statusText = ec2.status.toUpperCase();
+    $: statusChanging =
+        ec2.status === "shutting-down" ||
+        ec2.status === "stopping" ||
+        ec2.status === "pending";
 
     function toggleServerStatus() {
         checked = !checked;
         statusChanging = true;
-        statusText = checked ? "Stopping" : "Starting";
-        statusText2 = "It's usually take about half a minute." 
 
-        setTimeout(() => {
-            statusChanging = false;
-            statusText = checked ? "Stopped" : "Running";
-            statusText2 = ""
-        }, 3000);
+        if (checked) {
+            console.log("turn on");
+        } else {
+            console.log("turn off");
+        }
 
-        // console.log("sdjfhugjyg")
+        fetch("/api/status", {
+            method: "post",
+            body: checked ? "on" : "off",
+        })
+            .then((res) => res.text())
+            .then(console.log);
+    }
+
+    let id = setInterval(fetchServerStatus, 2000);
+    onDestroy(() => clearInterval(id));
+    async function fetchServerStatus() {
+        const res = await fetch("/api/status", {
+            method: "GET",
+        });
+
+        const updatedResult = (await res.json()) as Awaited<
+            ReturnType<typeof getStatus>
+        >;
+        ec2 = updatedResult;
     }
 </script>
 
@@ -44,11 +67,16 @@
     <div class="bg-white rounded-2xl flex justify-between items-center border">
         <div class="p-3">
             <h3 class="font-bold">Status</h3>
-            <p>{statusText} <span class="opacity-60"> {statusText2} </span></p>
+            <p>
+                {statusText}
+                {#if statusChanging}
+                    <span class="opacity-60"> It's take about 1 minute </span>
+                {/if}
+            </p>
         </div>
 
         <Switch
-            checked
+            {checked}
             class="mr-3"
             disabled={statusChanging}
             on:click={toggleServerStatus}
@@ -64,7 +92,7 @@
                 >
                     IPv4
                 </span>
-                <span>192.168.0.1</span>
+                <span>{ec2.ipv4 ?? "Unavailable"}</span>
             </div>
             <div>
                 <span
@@ -72,7 +100,7 @@
                 >
                     IPv6
                 </span>
-                <span>2406:da18:766:d7b0:268c:7e02:4405:a92</span>
+                <span>{ec2.ipv6 ?? "Unavailable"}</span>
             </div>
             <div>
                 <span
@@ -85,12 +113,12 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl p-3 flex-1 border">
+    <!-- <div class="bg-white rounded-2xl p-3 flex-1 border">
         <h3 class="font-bold mb-2">Whitelist</h3>
         <button> Add my IP </button>
-    </div>
+    </div> -->
 
-    <div class="bg-white rounded-2xl p-3 flex-1 border">
+    <!-- <div class="bg-white rounded-2xl p-3 flex-1 border">
         <h3 class="font-bold mb-2">Console</h3>
         <div
             class="bg-slate-900 border rounded-md text-white font-mono border-white/20"
@@ -107,5 +135,5 @@
                 />
             </div>
         </div>
-    </div>
+    </div> -->
 </main>

@@ -2,8 +2,10 @@
     import { enhance } from "$app/forms";
 </script>
 
-<p>Please login mf</p>
-<form method="post" use:enhance>
-    <input type="text" name="key" />
-    <button type="submit"> Done </button>
-</form>
+<main class="mx-auto max-w-sm mt-6">
+    <h1 class="text-xl">Enter key mf</h1>
+    <form method="post" use:enhance>
+        <input class="border rounded p-1" type="text" name="key" placeholder="Key"/>
+        <button type="submit" class="border p-1 px-2 rounded bg-blue-500/10 hover:bg-blue-500/15 text-blue-500"> Ok </button>
+    </form>
+</main>
