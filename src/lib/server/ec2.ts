@@ -1,10 +1,10 @@
-import { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, FABRIC_INSTANCE_ID } from "$env/static/private";
+import { env } from '$env/dynamic/private';
 import { DescribeInstancesCommand, EC2, StartInstancesCommand, StopInstancesCommand } from "@aws-sdk/client-ec2";
 
 export const ec2 = new EC2({
     credentials: {
-        accessKeyId: AWS_ACCESS_KEY_ID,
-        secretAccessKey: AWS_SECRET_ACCESS_KEY
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY
     },
     region: 'ap-southeast-1'
 })
@@ -13,7 +13,7 @@ export async function start() {
     return await ec2.send(
         new StartInstancesCommand({
             InstanceIds: [
-                FABRIC_INSTANCE_ID
+                env.FABRIC_INSTANCE_ID
             ]
         })
     )
@@ -23,7 +23,7 @@ export async function stop() {
     return await ec2.send(
         new StopInstancesCommand({
             InstanceIds: [
-                FABRIC_INSTANCE_ID
+                env.FABRIC_INSTANCE_ID
             ]
         })
     )
@@ -33,7 +33,7 @@ export async function getStatus() {
     const res = await ec2.send(
         new DescribeInstancesCommand({
             InstanceIds: [
-                FABRIC_INSTANCE_ID
+                env.FABRIC_INSTANCE_ID
             ]
         })
     )
