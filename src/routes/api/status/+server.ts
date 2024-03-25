@@ -1,36 +1,29 @@
 import { KEY } from "$env/static/private";
 import { redirect } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import * as EC2 from "$lib/server/ec2";
+import { getStatus, start, stop } from "$lib/server/ec2";
+import { verifySession } from "$lib/server/auth";
 
 export const GET: RequestHandler = async ({ cookies }) => {
-    const key = cookies.get('key')
-    if (key !== KEY) {
-        throw redirect(302, '/auth')
-    }
+    verifySession(cookies)    
 
-    const status = await EC2.getStatus()
+    const status = await getStatus()
 
     return new Response(JSON.stringify(status));
 };
 
 export const POST: RequestHandler = async ({ cookies, request }) => {
-    const key = cookies.get('key')
-    if (key !== KEY) {
-        throw redirect(302, '/auth')
-    }
+    verifySession(cookies)    
 
     const body = await request.text()
 
     switch (body) {
         case "on":
-            await EC2.start()
+            await start()
             return new Response("ok");
-            break
         case "off":
-            await EC2.stop()
+            await stop()
             return new Response("ok");
-            break
     }
 
     return new Response("fuckyou");

@@ -1,12 +1,12 @@
 import { env } from '$env/dynamic/private';
-import { DescribeInstancesCommand, EC2, StartInstancesCommand, StopInstancesCommand } from "@aws-sdk/client-ec2";
+import { AllocateAddressCommand, AssociateAddressCommand, DescribeInstancesCommand, DescribeNetworkInterfacesCommand, DisassociateAddressCommand, EC2, ReleaseAddressCommand, StartInstancesCommand, StopInstancesCommand } from "@aws-sdk/client-ec2";
 
 export const ec2 = new EC2({
     credentials: {
         accessKeyId: env.AWS_ACCESS_KEY_ID,
         secretAccessKey: env.AWS_SECRET_ACCESS_KEY
     },
-    region: 'ap-southeast-1'
+    region: 'ap-southeast-1',
 })
 
 export async function start() {
@@ -20,6 +20,9 @@ export async function start() {
 }
 
 export async function stop() {
+
+    // Release ipv4 first
+    // await toggleIpv4(false)
     return await ec2.send(
         new StopInstancesCommand({
             InstanceIds: [
@@ -46,20 +49,55 @@ export async function getStatus() {
     const ipv4 = instance.PublicIpAddress
     const ipv6 = instance.Ipv6Address
 
-    switch (instance.State?.Name) {
-        case "pending":
-        case "running":
-        case "shutting-down":
-        case "stopped":
-        case "stopping":
-        case "terminated":
-    }
-
     return {
         status: status as InstanceStatus,
         ipv4,
-        ipv6
+        ipv6,
     }
 }
 
-export type InstanceStatus =  "pending" | "running" | "shutting-down" | "stopped" | "stopping" | "terminated" | "unknown"
+export async function toggleIpv4(useIPv4: boolean = false) {
+    const { ipv4, status } = await getStatus()
+
+    // We can't attach ip if the instance is down
+    if (status !== "running") {
+        return "instance is down"
+    }
+
+    if (ipv4 !== undefined && useIPv4 === true) {
+        return "already have an ipv4"// Already have one
+    }
+
+    if (ipv4 === undefined && useIPv4 === false) {
+        return "already don't have any"// Already dont't have any
+    }
+
+    if (useIPv4) {
+        const { PublicIp, AllocationId } = await ec2.send(new AllocateAddressCommand())
+        console.log(`allocated ip:${PublicIp}`)
+        await ec2.send(new AssociateAddressCommand({
+            NetworkInterfaceId: env.FABRIC_MAIN_ENI_ID,
+            AllocationId: AllocationId,
+        }))
+    } else {
+        const { NetworkInterfaces } = await ec2.send(new DescribeNetworkInterfacesCommand({
+            NetworkInterfaceIds: [
+                env.FABRIC_MAIN_ENI_ID
+            ],
+        }))
+        const { AssociationId, AllocationId } = NetworkInterfaces!.at(0)!.Association!
+        console.log(NetworkInterfaces)
+        await ec2.send(new DisassociateAddressCommand({
+            AssociationId
+        }))
+        await ec2.send(new ReleaseAddressCommand({
+            AllocationId
+        }))
+    }
+
+    return "ok"
+}
+
+
+export type EC2Status = Awaited<ReturnType<typeof getStatus>>
+export type InstanceStatus = "pending" | "running" | "shutting-down" | "stopped" | "stopping" | "terminated" | "unknown"

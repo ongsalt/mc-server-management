@@ -1,15 +1,12 @@
 import { redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { KEY } from "$env/static/private";
 import { getStatus } from "$lib/server/ec2";
+import { removeSession, verifySession } from "$lib/server/auth";
 
 export const ssr = false
 
 export const load: PageServerLoad = async ({ cookies }) => {
-    const key = cookies.get('key')
-    if (key !== KEY) {
-        throw redirect(302, '/auth')
-    }
+    verifySession(cookies)    
 
     return {
         ec2: await getStatus()
@@ -18,17 +15,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 export const actions: Actions = {
     logout({ cookies }) {
-        cookies.delete('key', {
-            path: '/'
-        })
-        redirect(302, '/auth')
+        removeSession(cookies)
     },
     async status({ cookies }) {
-        const key = cookies.get('key')
-        if (key !== KEY) {
-            throw redirect(302, '/auth')
-        }
-    
+        verifySession(cookies)    
+
         return {
             ec2: await getStatus()
         }    

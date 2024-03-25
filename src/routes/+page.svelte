@@ -1,39 +1,14 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import Switch from "$lib/components/ui/switch/switch.svelte";
     import type { getStatus } from "$lib/server/ec2";
     import { onDestroy } from "svelte";
     import type { PageData } from "./$types";
+    import ServerSwitch from "$lib/components/ServerSwitch.svelte";
+    import IPv4Switch from "$lib/components/IPv4Switch.svelte";
+    import { slide } from "svelte/transition";
 
     export let data: PageData;
-
     let ec2 = data.ec2;
-    let checked = ec2.status === "running" || ec2.status === "pending";
-
-    $: statusText = ec2.status.toUpperCase();
-    $: statusChanging =
-        ec2.status === "shutting-down" ||
-        ec2.status === "stopping" ||
-        ec2.status === "pending";
-
-    function toggleServerStatus() {
-        checked = !checked;
-        statusChanging = true;
-
-        if (checked) {
-            console.log("turn on");
-        } else {
-            console.log("turn off");
-        }
-
-        fetch("/api/status", {
-            method: "post",
-            body: checked ? "on" : "off",
-        })
-            .then((res) => res.text())
-            .then(console.log)
-            .then(fetchServerStatus);
-    }
 
     let id = setInterval(fetchServerStatus, 2000);
     onDestroy(() => clearInterval(id));
@@ -46,7 +21,6 @@
             ReturnType<typeof getStatus>
         >;
         ec2 = updatedResult;
-        checked = ec2.status === "running" || ec2.status === "pending"
     }
 </script>
 
@@ -66,27 +40,15 @@
             </button>
         </form>
     </div>
-    <div class="bg-white rounded-2xl flex justify-between items-center border">
-        <div class="p-3">
-            <h3 class="font-bold">Status</h3>
-            <p>
-                {statusText}
-                {#if statusChanging}
-                    <span class="opacity-60"> It's take about 1 minute </span>
-                {/if}
-            </p>
+
+    <ServerSwitch {ec2} on:change={fetchServerStatus} />
+    {#if ec2.status === "running"}
+        <div transition:slide={{ axis: "y" }}>
+            <IPv4Switch {ec2} on:change={fetchServerStatus} />
         </div>
-
-        <Switch
-            {checked}
-            class="mr-3"
-            disabled={statusChanging}
-            on:click={toggleServerStatus}
-        />
-    </div>
-
+    {/if}
     <div class="bg-white rounded-2xl p-3 flex-1 border">
-        <h3 class="font-bold mb-2">Server Address</h3>
+        <h3 class="font-bold mb-2">ที่อยู่เซิร์ฟเวอร์</h3>
         <div class="flex gap-4 flex-wrap">
             <div>
                 <span
@@ -94,7 +56,7 @@
                 >
                     IPv4
                 </span>
-                <span>{ec2.ipv4 ?? "Unavailable"}</span>
+                <span>{ec2.ipv4 ?? "ไม่มี"}</span>
             </div>
             <div>
                 <span
@@ -115,9 +77,21 @@
         </div>
     </div>
 
+    <div class="bg-white rounded-2xl p-3 flex-1 border">
+        <h3 class="font-bold mb-2">โน๊ต</h3>
+        <p>
+            เนื่องจาก IPv4 มันแพง(ส่วน IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้
+            IPv6 เถอะนะ
+        </p>
+        <p>วิธี: ออกเกม -> ปิด "ใช้ IPv4 ด้วย" -> เปิด Cloudflare warp</p>
+        <p class="text-red-500">อย่าปิด IPv4 ถ้ามีคนอื่นอยู่ในเซิฟ</p>
+    </div>
+
     <!-- <div class="bg-white rounded-2xl p-3 flex-1 border">
-        <h3 class="font-bold mb-2">Whitelist</h3>
-        <button> Add my IP </button>
+        <h3 class="font-bold mb-2">ค่าใช้จ่าย</h3>
+        <p> ค่าคอม คิดเฉพาะตอนเปิดเซิฟ ฟรีจนถึงธันวาคม 2024 (t4g.small) </p>
+        <p> IPv4 คิดเฉพาะตอนเปิดเซิฟ ชั่วโมงละ 0.18 บาท ซึ่งแพงชิบหายถ้าเปิดเซิฟทิ้งไว้ทั้งเดือน (ส่วน IPv6 ฟรี)</p>
+        <p> ค่าที่เก็บข้อมูล อันนี้ต้องจ่ายตลอดเวลาที่เราเซฟข้อมูลเกมไว้ 3.50 บาทต่อ Gb ต่อเดือน เราใช้ 8 Gb ก็เดือนละ 28 บาท </p>
     </div> -->
 
     <!-- <div class="bg-white rounded-2xl p-3 flex-1 border">
