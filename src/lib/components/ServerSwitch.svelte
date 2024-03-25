@@ -39,7 +39,7 @@
 
 </script>
 
-<div class="bg-white rounded-2xl flex justify-between items-center border">
+<div class="bg-background rounded-2xl flex justify-between items-center border">
     <div class="p-3">
         <h3 class="font-bold">สถานะ</h3>
         <p>

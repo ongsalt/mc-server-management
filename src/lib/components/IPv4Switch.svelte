@@ -29,7 +29,7 @@
     }
 </script>
 
-<div class="bg-white rounded-2xl p-3 border flex justify-between items-center">
+<div class="bg-background rounded-2xl p-3 border flex justify-between items-center">
     <div>
         <h3 class="font-bold">ใช้ IPv4 ด้วย</h3>
         <p class="opacity-70">ทำให้คนที่ไม่มี IPv6 เล่นได้</p>

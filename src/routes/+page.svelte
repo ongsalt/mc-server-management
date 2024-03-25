@@ -47,7 +47,7 @@
             <IPv4Switch {ec2} on:change={fetchServerStatus} />
         </div>
     {/if}
-    <div class="bg-white rounded-2xl p-3 flex-1 border">
+    <div class="bg-background rounded-2xl p-3 flex-1 border">
         <h3 class="font-bold mb-2">ที่อยู่เซิร์ฟเวอร์</h3>
         <div class="flex gap-4 flex-wrap">
             <div>
@@ -77,14 +77,17 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl p-3 flex-1 border">
+    <div class="bg-background rounded-2xl p-3 flex-1 border">
         <h3 class="font-bold mb-2">โน๊ต</h3>
         <p>
-            เนื่องจาก IPv4 มันแพง(ส่วน IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้
-            IPv6 เถอะนะ
+            เนื่องจาก IPv4 มันแพง(ส่วน IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้ IPv6 เถอะนะ
         </p>
+
         <p>วิธี: ออกเซิฟ -> ปิด "ใช้ IPv4 ด้วย" -> เปิด Cloudflare warp</p>
         <p class="text-red-500">อย่าปิด IPv4 ถ้ามีคนอื่นอยู่ในเซิฟ</p>
+        <p class="text-yellow-500">
+            ค่าเซิฟส่วนใหญ่มาจาก IPv4 นี่แหละถ้าปิดไว้ไม่ต้องปิดเซิฟก็ได้
+        </p>
     </div>
 
     <!-- <div class="bg-white rounded-2xl p-3 flex-1 border">
