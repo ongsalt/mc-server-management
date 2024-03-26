@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { AllocateAddressCommand, AssociateAddressCommand, DescribeInstancesCommand, DescribeNetworkInterfacesCommand, DisassociateAddressCommand, EC2, ReleaseAddressCommand, StartInstancesCommand, StopInstancesCommand } from "@aws-sdk/client-ec2";
+import { updateDnsRecord } from './dns';
 
 export const ec2 = new EC2({
     credentials: {
@@ -22,7 +23,7 @@ export async function start() {
 export async function stop() {
 
     // Release ipv4 first
-    // await toggleIpv4(false)
+    await toggleIpv4(false)
     return await ec2.send(
         new StopInstancesCommand({
             InstanceIds: [
@@ -74,11 +75,17 @@ export async function toggleIpv4(useIPv4: boolean = false) {
 
     if (useIPv4) {
         const { PublicIp, AllocationId } = await ec2.send(new AllocateAddressCommand())
+        if (!PublicIp) {
+            throw new Error("idk")
+        }
         console.log(`allocated ip:${PublicIp}`)
-        await ec2.send(new AssociateAddressCommand({
-            NetworkInterfaceId: env.FABRIC_MAIN_ENI_ID,
-            AllocationId: AllocationId,
-        }))
+        await Promise.all([
+            updateDnsRecord(PublicIp),
+            ec2.send(new AssociateAddressCommand({
+                NetworkInterfaceId: env.FABRIC_MAIN_ENI_ID,
+                AllocationId: AllocationId,
+            }))
+        ])
     } else {
         const { NetworkInterfaces } = await ec2.send(new DescribeNetworkInterfacesCommand({
             NetworkInterfaceIds: [
