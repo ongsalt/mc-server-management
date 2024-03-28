@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { AllocateAddressCommand, AssociateAddressCommand, DescribeInstancesCommand, DescribeNetworkInterfacesCommand, DisassociateAddressCommand, EC2, ReleaseAddressCommand, StartInstancesCommand, StopInstancesCommand } from "@aws-sdk/client-ec2";
 import { updateDnsRecord } from './dns';
+import { sleep } from '$lib/promise';
 
 export const ec2 = new EC2({
     credentials: {
@@ -24,6 +25,7 @@ export async function stop() {
 
     // Release ipv4 first
     await toggleIpv4(false)
+    await sleep(1000)
     return await ec2.send(
         new StopInstancesCommand({
             InstanceIds: [
@@ -97,6 +99,7 @@ export async function toggleIpv4(useIPv4: boolean = false) {
         await ec2.send(new DisassociateAddressCommand({
             AssociationId
         }))
+        await sleep(1000)
         await ec2.send(new ReleaseAddressCommand({
             AllocationId
         }))
