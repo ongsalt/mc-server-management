@@ -1,8 +1,11 @@
-import { KEY } from "$env/static/private";
-import { redirect } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { toggleIpv4 } from "$lib/server/ec2";
 import { verifySession } from "$lib/server/auth";
+import type { Config } from "@sveltejs/adapter-vercel";
+
+export const config: Config = {
+    runtime: "edge"
+}
 
 export const POST: RequestHandler = async ({ cookies, request }) => {
     verifySession(cookies)
