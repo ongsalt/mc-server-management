@@ -8,6 +8,7 @@
     import Switch2 from "$lib/components/Switch2.svelte";
 
     let ec2: EC2Status | undefined;
+    updateServerStatus()
 
     let id = setInterval(updateServerStatus, 2000);
 
