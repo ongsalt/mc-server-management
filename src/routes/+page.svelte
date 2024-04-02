@@ -6,9 +6,12 @@
     import IPv4Switch from "$lib/components/IPv4Switch.svelte";
     import { fade, slide } from "svelte/transition";
     import Switch2 from "$lib/components/Switch2.svelte";
+    import type { PageData } from "./$types";
 
-    let ec2: EC2Status | undefined;
-    updateServerStatus()
+    export let data: PageData
+
+    let ec2: EC2Status | undefined = data?.ec2;
+    // updateServerStatus()
 
     let id = setInterval(updateServerStatus, 2000);
 
@@ -29,7 +32,7 @@
 </script>
 
 <main class="p-6 space-y-4 max-w-xl mx-auto">
-    <div class="flex justify-between items-center my-6">
+    <div class="flex justify-between items-center h-12 my-6">
         <h1 class="text-3xl font-semibold">Server management</h1>
         <form action="?/logout" method="post" use:enhance>
             <button
@@ -38,7 +41,7 @@
             >
                 <img
                     src="/icon/icons8-logout-96.png"
-                    class="w-6 dark:invert"
+                    class="w-6 h-6 dark:invert"
                     alt="logouts"
                 />
             </button>
