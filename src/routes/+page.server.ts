@@ -2,7 +2,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { getStatus } from "$lib/server/ec2";
 import { removeSession, verifySession } from "$lib/server/auth";
 
-export const ssr = false
+export const ssr = true
 
 export const load: PageServerLoad = async ({ cookies }) => {
     verifySession(cookies)    
