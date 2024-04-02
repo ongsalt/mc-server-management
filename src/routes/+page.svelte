@@ -1,26 +1,29 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import type { getStatus } from "$lib/server/ec2";
+    import type { EC2Status } from "$lib/server/ec2";
     import { onDestroy } from "svelte";
-    import type { PageData } from "./$types";
     import ServerSwitch from "$lib/components/ServerSwitch.svelte";
     import IPv4Switch from "$lib/components/IPv4Switch.svelte";
-    import { slide } from "svelte/transition";
+    import { fade, slide } from "svelte/transition";
+    import Switch2 from "$lib/components/Switch2.svelte";
 
-    export let data: PageData;
-    let ec2 = data.ec2;
+    let ec2: EC2Status | undefined;
 
-    let id = setInterval(fetchServerStatus, 2000);
+    let id = setInterval(updateServerStatus, 2000);
+
     onDestroy(() => clearInterval(id));
+
     async function fetchServerStatus() {
         const res = await fetch("/api/status", {
             method: "GET",
         });
 
-        const updatedResult = (await res.json()) as Awaited<
-            ReturnType<typeof getStatus>
-        >;
-        ec2 = updatedResult;
+        const updatedResult = (await res.json()) as EC2Status;
+        return updatedResult;
+    }
+
+    async function updateServerStatus() {
+        ec2 = await fetchServerStatus();
     }
 </script>
 
@@ -29,24 +32,47 @@
         <h1 class="text-3xl font-semibold">Server management</h1>
         <form action="?/logout" method="post" use:enhance>
             <button
-                class="p-2 bg-black/5 hover:bg-black/10 rounded-full"
+                class="p-2 bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 rounded-full transition"
                 type="submit"
             >
                 <img
                     src="/icon/icons8-logout-96.png"
-                    class="w-6"
+                    class="w-6 dark:invert"
                     alt="logouts"
                 />
             </button>
         </form>
     </div>
 
-    <ServerSwitch {ec2} on:change={fetchServerStatus} />
-    {#if ec2.status === "running"}
-        <div transition:slide={{ axis: "y" }}>
-            <IPv4Switch {ec2} on:change={fetchServerStatus} />
+    <div class="relative">
+        <div class="space-y-4 transition-all blur-sm" class:blur-0={ec2}>
+            {#if ec2}
+                <ServerSwitch {ec2} on:change={updateServerStatus} />
+                <IPv4Switch {ec2} on:change={updateServerStatus} />
+            {:else}
+                <Switch2
+                    checked={true}
+                    title="สถานะ"
+                    description="เปิด"
+                    disabled={false}
+                />
+                <Switch2
+                    checked={false}
+                    title="ใช้ IPv4 ด้วย"
+                    description="ทำให้คนที่ไม่มี IPv6 เล่นได้"
+                    disabled={false}
+                />
+            {/if}
         </div>
-    {/if}
+        {#if !ec2}
+            <div class="inset-0 absolute flex items-center justify-center" transition:fade={{ duration: 250 }}>
+                <div class="p-2 border rounded-lg bg-background">
+                    <h2 class="text-md">กำลังโหลด</h2>
+                </div>
+            </div>
+        {/if}
+    </div>
+
     <div class="bg-background rounded-2xl p-3 flex-1 border">
         <h3 class="font-bold mb-2">ที่อยู่เซิร์ฟเวอร์</h3>
         <div class="flex gap-4 flex-wrap">
@@ -56,7 +82,7 @@
                 >
                     IPv4
                 </span>
-                <span>{ec2.ipv4 ?? "ไม่มี"}</span>
+                <span>{ec2?.ipv4 ?? "ไม่มี"}</span>
             </div>
             <div>
                 <span
@@ -64,11 +90,11 @@
                 >
                     IPv6
                 </span>
-                <span>{ec2.ipv6 ?? "Unavailable"}</span>
+                <span>{ec2?.ipv6 ?? "Unavailable"}</span>
             </div>
             <div>
                 <span
-                    class="text-sm font-medium bg-yellow-500/15 text-yellow-600 p-1 rounded-md select-none"
+                    class="text-sm font-medium bg-yellow-500/15 text-yellow-500 p-1 rounded-md select-none"
                 >
                     IPv4 Domain
                 </span>
@@ -84,17 +110,19 @@
                 <span>fabric6.ongsa.lt</span>
             </div>
         </div>
-
     </div>
 
     <div class="bg-background rounded-2xl p-3 flex-1 border">
         <h3 class="font-bold mb-2">โน๊ต</h3>
         <p>
-            เนื่องจาก IPv4 มันแพง(IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้
-            IPv6 เถอะนะ
+            เนื่องจาก IPv4 มันแพง(IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้ IPv6
+            เถอะนะ
         </p>
 
-        <p>วิธี: ออกเซิฟ -> ปิด "ใช้ IPv4 ด้วย" -> เปิด Cloudflare warp -> เข้าเซิฟโดยใช้ IPv6 Domain</p>
+        <p>
+            วิธี: ออกเซิฟ -> ปิด "ใช้ IPv4 ด้วย" -> เปิด Cloudflare warp ->
+            เข้าเซิฟโดยใช้ IPv6 Domain
+        </p>
         <p class="text-red-500">อย่าปิด IPv4 ถ้ามีคนอื่นอยู่ในเซิฟ</p>
         <p class="text-yellow-500">
             ค่าเซิฟส่วนใหญ่มาจาก IPv4 นี่แหละถ้าปิดไว้ไม่ต้องปิดเซิฟก็ได้
@@ -111,19 +139,19 @@
     <!-- <div class="bg-white rounded-2xl p-3 flex-1 border">
         <h3 class="font-bold mb-2">Console</h3>
         <div
-            class="bg-slate-900 border rounded-md text-white font-mono border-white/20"
+        class="bg-slate-900 border rounded-md text-white font-mono border-white/20"
         >
-            <div class="p-2">
-                <p><span class="text-white/70"> [{dateText}] </span> Test</p>
-                <p>Test</p>
-            </div>
-            <div class="border-t border-t-white/20 flex gap-1 items-center">
-                <span class="pl-2"> > </span>
-                <input
-                    type="text"
-                    class="bg-transparent flex-1 focus:outline-none p-1"
-                />
-            </div>
+        <div class="p-2">
+            <p><span class="text-white/70"> [{dateText}] </span> Test</p>
+            <p>Test</p>
         </div>
-    </div> -->
+        <div class="border-t border-t-white/20 flex gap-1 items-center">
+            <span class="pl-2"> > </span>
+            <input
+            type="text"
+            class="bg-transparent flex-1 focus:outline-none p-1"
+            />
+        </div>
+    </div>
+</div> -->
 </main>

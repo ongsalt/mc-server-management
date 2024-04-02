@@ -7,10 +7,6 @@ export const ssr = false
 
 export const load: PageServerLoad = async ({ cookies }) => {
     verifySession(cookies)    
-
-    return {
-        ec2: await getStatus()
-    }
 };
 
 export const actions: Actions = {

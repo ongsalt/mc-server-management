@@ -108,6 +108,13 @@ export async function toggleIpv4(useIPv4: boolean = false) {
     return "ok"
 }
 
+export function autoFix() {
+    // We need to store all allocation id somewhere: ec2
+    // Then need to check if it's match macchine state | Only no ipv4 state can be check
+    // If there is not yet release IP -> release it
+
+}
+
 
 export type EC2Status = Awaited<ReturnType<typeof getStatus>>
 export type InstanceStatus = "pending" | "running" | "shutting-down" | "stopped" | "stopping" | "terminated" | "unknown"

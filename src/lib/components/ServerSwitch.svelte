@@ -1,9 +1,8 @@
 <script lang="ts">
     import type { EC2Status } from "$lib/server/ec2";
     import { createEventDispatcher } from "svelte";
-    import Switch from "./ui/switch/switch.svelte";
+    import Switch2 from "./Switch2.svelte";
     import { statusDisplayText } from "$lib/localization";
-
 
     export let ec2: EC2Status;
     $: checked = ec2.status === "running" || ec2.status === "pending";
@@ -14,9 +13,9 @@
         ec2.status === "stopping" ||
         ec2.status === "pending";
 
-    const dispatch = createEventDispatcher()
+    const dispatch = createEventDispatcher();
 
-    const onDone = () => dispatch("change")
+    const onDone = () => dispatch("change");
 
     function toggleServerStatus() {
         checked = !checked;
@@ -36,24 +35,13 @@
             .then(console.log)
             .then(onDone);
     }
-
 </script>
 
-<div class="bg-background rounded-2xl flex justify-between items-center border">
-    <div class="p-3">
-        <h3 class="font-bold">สถานะ</h3>
-        <p>
-            {statusDisplayText[statusText]}
-            {#if statusChanging}
-                <span class="opacity-60"> น่าจะประมาณ 2 นาที </span>
-            {/if}
-        </p>
-    </div>
-
-    <Switch
-        {checked}
-        class="mr-3"
-        disabled={statusChanging}
-        on:click={toggleServerStatus}
-    />
-</div>
+<Switch2
+    {checked}
+    disabled={statusChanging}
+    on:click={toggleServerStatus}
+    title="สถานะ"
+    description={statusDisplayText[statusText]}
+    description2={statusChanging ? "น่าจะประมาณ 2 นาที" : ""}
+/>
