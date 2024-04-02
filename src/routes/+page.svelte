@@ -45,7 +45,7 @@
     </div>
 
     <div class="relative">
-        <div class="space-y-4 transition-all blur-sm" class:blur-0={ec2}>
+        <div class="space-y-4 transition-all" class:blur-sm={!ec2} class:blur-0={ec2}>
             {#if ec2}
                 <ServerSwitch {ec2} on:change={updateServerStatus} />
                 <IPv4Switch {ec2} on:change={updateServerStatus} />
