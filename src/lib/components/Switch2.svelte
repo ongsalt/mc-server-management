@@ -14,7 +14,7 @@
 
 <div class="bg-background rounded-2xl flex justify-between items-center border">
     <div class="p-3">
-        <h3 class="font-bold">{title}</h3>
+        <h2 class="font-bold">{title}</h2>
         <p>
             {description}
             <span class="opacity-60"> {description2} </span>
