@@ -8,10 +8,11 @@
     import Switch2 from "$lib/components/Switch2.svelte";
     import type { PageData } from "./$types";
 
-    export let data: PageData
+    export let data: PageData;
 
-    let ec2: EC2Status | undefined = data?.ec2;
-    // updateServerStatus()
+    let ec2: EC2Status | undefined = undefined;
+
+    data.ec2.then((it) => (ec2 = it));
 
     let id = setInterval(updateServerStatus, 2000);
 
@@ -49,7 +50,11 @@
     </div>
 
     <div class="relative">
-        <div class="space-y-4 transition-all" class:blur-sm={!ec2} class:blur-0={ec2}>
+        <div
+            class="space-y-4 transition-all"
+            class:blur-sm={!ec2}
+            class:blur-0={ec2}
+        >
             {#if ec2}
                 <ServerSwitch {ec2} on:change={updateServerStatus} />
                 <IPv4Switch {ec2} on:change={updateServerStatus} />
@@ -69,7 +74,10 @@
             {/if}
         </div>
         {#if !ec2}
-            <div class="inset-0 absolute flex items-center justify-center" transition:fade={{ duration: 250 }}>
+            <div
+                class="inset-0 absolute flex items-center justify-center"
+                transition:fade={{ duration: 250 }}
+            >
                 <div class="p-2 border rounded-lg bg-background">
                     <h2 class="text-md">กำลังโหลด</h2>
                 </div>
@@ -86,7 +94,11 @@
                 >
                     IPv4
                 </span>
-                <span>{ec2?.ipv4 ?? "ไม่มี"}</span>
+                <span
+                    >{ec2 === undefined
+                        ? "กำลังโหลด"
+                        : ec2?.ipv4 ?? "ไม่มี"}</span
+                >
             </div>
             <div>
                 <span
@@ -94,7 +106,11 @@
                 >
                     IPv6
                 </span>
-                <span>{ec2?.ipv6 ?? "Unavailable"}</span>
+                <span
+                    >{ec2 === undefined
+                        ? "กำลังโหลด"
+                        : ec2?.ipv6 ?? "ไม่มี"}</span
+                >
             </div>
             <div>
                 <span

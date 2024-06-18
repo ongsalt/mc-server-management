@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     verifySession(cookies)    
     
     return {
-        ec2: await getStatus()
+        ec2: getStatus()
     }
 };
 
