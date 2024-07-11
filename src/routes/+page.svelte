@@ -75,7 +75,7 @@
         {#if !ec2}
             <div
                 class="inset-0 absolute flex items-center justify-center"
-                transition:fade={{ duration: 250 }}
+                transition:fade={{ duration: 150 }}
             >
                 <h2 class="text-md opacity-70">กำลังโหลด</h2>
             </div>
