@@ -11,7 +11,6 @@
     export let data: PageData;
 
     let ec2: EC2Status | undefined = undefined;
-
     data.ec2.then((it) => (ec2 = it));
 
     let id = setInterval(updateServerStatus, 2000);
@@ -118,7 +117,7 @@
                 >
                     IPv4 Domain
                 </span>
-                <span>fabric.ongsa.lt</span>
+                <span>{data.ipv4}</span>
             </div>
 
             <div>
@@ -127,7 +126,7 @@
                 >
                     IPv6 Domain
                 </span>
-                <span>fabric6.ongsa.lt</span>
+                <span>{data.ipv6}</span>
             </div>
         </div>
     </div>
@@ -135,15 +134,9 @@
     <div class="bg-background rounded-2xl p-3 flex-1 border">
         <h2 class="font-bold mb-2">โน๊ต</h2>
         <p>
-            เนื่องจาก IPv4 มันแพง(IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้ IPv6
+            เนื่องจาก IPv4 มันแพง (ส่วน IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้ IPv6
             เถอะนะ
         </p>
-
-        <p>
-            วิธี: ออกเซิฟ -> ปิด "ใช้ IPv4 ด้วย" -> เปิด Cloudflare warp ->
-            เข้าเซิฟโดยใช้ IPv6 Domain
-        </p>
-        <p class="text-red-500">อย่าปิด IPv4 ถ้ามีคนอื่นอยู่ในเซิฟ</p>
         <p class="text-yellow-500">
             ค่าเซิฟส่วนใหญ่มาจาก IPv4 นี่แหละถ้าปิดไว้ไม่ต้องปิดเซิฟก็ได้
         </p>
