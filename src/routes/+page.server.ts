@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     return {
         ipv4: env.SERVER_IPV4_DOMAIN,
         ipv6: env.SERVER_IPV6_DOMAIN,
-        ec2: getStatus()
+        ec2: await getStatus()
     }
 };
 

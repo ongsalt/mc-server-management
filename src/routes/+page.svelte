@@ -10,8 +10,9 @@
 
     export let data: PageData;
 
-    let ec2: EC2Status | undefined = undefined;
-    data.ec2.then((it) => (ec2 = it));
+    // let ec2: EC2Status | undefined = undefined;
+    // data.ec2.then((it) => (ec2 = it));
+    let { ec2 } = data;
 
     let id = setInterval(updateServerStatus, 2000);
 
