@@ -77,9 +77,7 @@
                 class="inset-0 absolute flex items-center justify-center"
                 transition:fade={{ duration: 250 }}
             >
-                <div class="p-2 border rounded-lg bg-background">
-                    <h2 class="text-md">กำลังโหลด</h2>
-                </div>
+                <h2 class="text-md opacity-70">กำลังโหลด</h2>
             </div>
         {/if}
     </div>
@@ -134,8 +132,8 @@
     <div class="bg-background rounded-2xl p-3 flex-1 border">
         <h2 class="font-bold mb-2">โน๊ต</h2>
         <p>
-            เนื่องจาก IPv4 มันแพง (ส่วน IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้ IPv6
-            เถอะนะ
+            เนื่องจาก IPv4 มันแพง (ส่วน IPv6 ฟรี) ถ้าจะ AFK ฟาร์มทิ้งไว้ก็ใช้
+            IPv6 เถอะนะ
         </p>
         <p class="text-yellow-500">
             ค่าเซิฟส่วนใหญ่มาจาก IPv4 นี่แหละถ้าปิดไว้ไม่ต้องปิดเซิฟก็ได้
