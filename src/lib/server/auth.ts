@@ -1,9 +1,9 @@
-import { KEY } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import { redirect, type Cookies } from "@sveltejs/kit"
 
 export function verifySession(cookies: Cookies) {
     const key = cookies.get('key')
-    if (key !== KEY) {
+    if (key !== env.KEY) {
         throw redirect(302, '/auth')
     }
 }

@@ -8,7 +8,7 @@ export const ec2 = new EC2({
         accessKeyId: env.AWS_ACCESS_KEY_ID,
         secretAccessKey: env.AWS_SECRET_ACCESS_KEY
     },
-    region: 'ap-southeast-1',
+    region: env.AWS_REGION,
 })
 
 export async function start() {
